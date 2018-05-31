@@ -5,6 +5,7 @@ namespace JwtApi\Laravel\Http\Middleware;
 use Auth;
 use Closure;
 use Illuminate\Http\Request;
+use JwtApi\Laravel\Exceptions\ApiException;
 use JwtApi\Laravel\Exceptions\AuthenticationException;
 use JwtApi\Server\Exceptions\ServerException;
 
@@ -19,12 +20,17 @@ class AuthenticateUser
      */
     public function handle(Request $request, Closure $next)
     {
+        $auth = Auth::guard();
+
         try {
-            if (!Auth::guard()->user()) {
+            $user = $auth->user();
+            $client = $auth->client();
+
+            if (!$user || !$user->clients->contains($client->id)) {
                 throw AuthenticationException::userNotFound();
             }
         } catch (ServerException $exception) {
-            throw AuthenticationException::inherit($exception);
+            throw ApiException::inherit($exception);
         }
 
         return $next($request);

@@ -95,13 +95,21 @@ class RequestGuard implements Guard
             return $this->user;
         }
 
-        $user = $this->provider->retrieveById($this->validatedRequest()->getClaim('user'));
+        $user = $this->provider->retrieveById($this->getClaim('user'));
 
         if ($user) {
             return $this->user = $user;
         }
 
         return null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClaim(string $name, $default = null)
+    {
+        return $this->validatedRequest()->getClaim($name, $default);
     }
 
     public function validate(array $credentials = []): bool
