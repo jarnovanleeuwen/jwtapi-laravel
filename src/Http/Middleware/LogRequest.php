@@ -11,6 +11,13 @@ use JwtApi\Server\Exceptions\ServerException;
 class LogRequest
 {
     /**
+     * The maximum length of the logged request and response.
+     *
+     * @var int
+     */
+    public $length = 2048;
+    
+    /**
      * Handle an incoming request.
      *
      * @return mixed
@@ -29,8 +36,8 @@ class LogRequest
 
         ApiRequest::create([
             'api_client_id' => $client ? $client->id : null,
-            'request' => (string) $request,
-            'response' => (string) $response
+            'request' => substr((string) $request, 0, $this->length),
+            'response' => substr((string) $response, 0, $this->length),
         ]);
 
         return $response;
